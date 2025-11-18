@@ -84,7 +84,7 @@ def test_basic_functionality():
     except Exception as e:
         print(f"\nFAILED: {e}")
         print("\nTroubleshooting:")
-        print("1. Check POLYMARKET_API_KEY in .env file")
+        print("1. Check POLYMARKET_BUILDER_API_KEY in .env file")
         print("2. Verify internet connection")
         print("3. Check Polymarket API status")
         print("4. Ensure you're using Python 3.11+")
@@ -107,13 +107,13 @@ if __name__ == "__main__":
     print()
 
     # Check for API key
-    api_key = os.getenv("POLYMARKET_API_KEY")
+    api_key = os.getenv("POLYMARKET_BUILDER_API_KEY")
     if api_key:
-        print("[OK] Polymarket API key found")
+        print("[OK] Polymarket Builder API key found")
         success = test_basic_functionality()
     else:
-        print("[ERROR] No Polymarket API key found")
-        print("Please add POLYMARKET_API_KEY to your .env file")
+        print("[ERROR] No Polymarket Builder API key found")
+        print("Please add POLYMARKET_BUILDER_API_KEY to your .env file")
         success = False
 
     if success:

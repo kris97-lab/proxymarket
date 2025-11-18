@@ -21,15 +21,16 @@ class PolymarketClient:
 
     def __init__(self):
         # Get credentials from environment
-        self.api_key = os.getenv("POLYMARKET_API_KEY")
-        self.private_key = os.getenv("POLYMARKET_PRIVATE_KEY")
+        self.api_key = os.getenv("POLYMARKET_BUILDER_API_KEY")
+        self.private_key = os.getenv("POLYMARKET_BUILDER_API_SECRET")
+        self.api_base_url = os.getenv("API_BASE_URL", "https://clob.polymarket.com")
         self.signing_server_url = os.getenv("POLYMARKET_SIGNING_SERVER_URL", "http://localhost:5001/sign")
 
         if not self.api_key:
-            logger.warning("POLYMARKET_API_KEY not found in environment variables")
+            logger.warning("POLYMARKET_BUILDER_API_KEY not found in environment variables")
 
         if not self.private_key:
-            logger.warning("POLYMARKET_PRIVATE_KEY not found - order placement will not work")
+            logger.warning("POLYMARKET_BUILDER_API_SECRET not found - order placement will not work")
 
         # Trading service HTTP endpoint
         self.trading_service_url = os.getenv("TRADING_SERVICE_URL", "http://localhost:5002")
@@ -37,6 +38,7 @@ class PolymarketClient:
         logger.info("Initialized Polymarket Builder client")
         logger.info(f"Trading service URL: {self.trading_service_url}")
         logger.info(f"Signing server URL: {self.signing_server_url}")
+        logger.info(f"API base URL: {self.api_base_url}")
 
     def get_markets(self, limit: int = 20, closed: bool = False) -> List[Dict]:
         """
@@ -525,6 +527,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         print("\n🔧 Troubleshooting:")
-        print("1. Check POLYMARKET_API_KEY in .env file")
+        print("1. Check POLYMARKET_BUILDER_API_KEY in .env file")
         print("2. Verify internet connection")
         print("3. Check Polymarket API status")

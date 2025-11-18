@@ -3,9 +3,9 @@ from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import logging
-from backend.integrations.polymarket import polymarket
-from backend.database import get_db
-from backend.models import Trade
+from integrations.polymarket import polymarket
+from database import get_db
+from models import Trade
 from datetime import datetime
 from decimal import Decimal
 

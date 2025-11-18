@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Image from "next/image";
 import { useWallet } from '../hooks/useWallet';
 import { usePredictions, MarketWithAI } from '../hooks/usePredictions';
-import { fetchMarkets } from '../lib/api';
+import { fetchMarkets, API_BASE } from '../lib/api';
 import { TradingModal } from '../components/TradingModal';
 import { AIConfidenceBadge, AIConfidenceDetailed } from '../components/AIConfidenceIndicator';
 import { Sidebar, MobileMenuButton } from '../components/Sidebar';
@@ -69,7 +69,7 @@ export default function Home() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await fetch('http://localhost:8000/health');
+        const response = await fetch(`${API_BASE}/health`);
         if (response.ok) {
           setBackendStatus('online');
           const data = await fetchMarkets();

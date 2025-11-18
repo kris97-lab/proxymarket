@@ -1,129 +1,54 @@
-"""
-Precedence Backend API - FastAPI Application
+"""Precedence Lite Polymarket backend entrypoint."""
 
-Main entry point for the Precedence prediction market backend.
-"""
-
-import os
 import logging
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
-
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 
-# Import our modules
-from backend.database import init_database, get_db
-from backend.models.models import Base  # Use our adapted models
+from api.routes import markets, trading
+from database import init_db
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Lifespan context manager for startup/shutdown
+
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Application lifespan manager."""
-    logger.info("Starting Precedence backend...")
-
-    # Initialize database on startup
+async def lifespan(app: FastAPI):
+    """Initialize database on startup."""
     try:
-        init_database()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
-        raise
-
-    # Initialize external services
-    try:
-        logger.info("No external services to initialize")
-    except Exception as e:
-        logger.warning(f"Some services failed to initialize: {e}")
-
+        init_db()
+        logger.info("Database initialized")
+    except Exception as exc:
+        logger.warning(f"Database init skipped or failed: {exc}")
     yield
 
-    logger.info("Shutting down Precedence backend...")
 
-# Create FastAPI app
-app = FastAPI(
-    title="Precedence API",
-    description="AI-Powered Prediction Markets on Solana",
-    version="1.0.0",
-    lifespan=lifespan
-)
+app = FastAPI(title="Polymarket Backend", version="1.0.0", lifespan=lifespan)
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Configure for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Health check endpoint
+
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "polymarket-backend"}
+
+
+app.include_router(markets.router)
+app.include_router(trading.router)
+
+
 @app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": "precedence-backend",
-        "version": "1.0.0"
-    }
+async def health():
+    return {"status": "healthy"}
 
-# Database health check
-@app.get("/health/db")
-async def database_health(db: Session = Depends(get_db)):
-    """Database health check."""
-    try:
-        # Simple query to test database connection
-        db.execute("SELECT 1")
-        return {"status": "healthy", "database": "connected"}
-    except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Database unhealthy: {str(e)}")
-
-# ============================================================================
-# PLACEHOLDER ENDPOINTS - TO BE IMPLEMENTED
-# ============================================================================
-
-@app.get("/api/v1/markets")
-async def list_markets(db: Session = Depends(get_db)):
-    """List all prediction markets."""
-    # TODO: Implement market listing with pagination and filtering
-    return {
-        "success": True,
-        "data": {
-            "markets": [],
-            "total": 0,
-            "message": "Market listing endpoint - coming soon"
-        }
-    }
-
-@app.post("/api/v1/markets")
-async def create_market(market_data: dict, db: Session = Depends(get_db)):
-    """Create a new prediction market."""
-    # TODO: Implement market creation with Solana integration
-    return {
-        "success": True,
-        "data": {
-            "message": "Market creation endpoint - coming soon",
-            "market_data": market_data
-        }
-    }
 
 if __name__ == "__main__":
     import uvicorn
 
-    # Get port from environment or default to 8000
-    port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
-
-    logger.info(f"Starting server on {host}:{port}")
-    uvicorn.run(
-        "backend.main:app",
-        host=host,
-        port=port,
-        reload=True if os.getenv("DEBUG", "False").lower() == "true" else False,
-        log_level="info"
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

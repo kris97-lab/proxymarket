@@ -9,7 +9,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Query, HTTPException
 from pydantic import BaseModel
 
-from ...integrations.polymarket import polymarket, get_markets, search_markets
+from integrations.polymarket import polymarket, get_markets, search_markets
 
 logger = logging.getLogger(__name__)
 
