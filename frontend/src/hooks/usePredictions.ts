@@ -1,29 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export interface AIPrediction {
   predicted_outcome: string;
   confidence: number;
-  judge_analysis?: {
-    judge_bias?: string;
-    judge_confidence_adjustment?: number;
-  };
+  model_adjustment?: number;
+  notes?: string;
   model_version?: string;
-}
-
-export interface JudgeProfile {
-  judge_id: string;
-  profile_status?: string;
-  statistics?: {
-    case_types?: Record<string, number>;
-    outcomes?: Record<string, number>;
-  };
-  writing_style?: any;
-  topics?: any;
 }
 
 export interface MarketWithAI extends Market {
   ai_prediction?: AIPrediction;
-  judge_profile?: JudgeProfile;
 }
 
 interface Market {
@@ -43,14 +29,13 @@ interface Market {
 
 export function usePredictions() {
   const [predictions, setPredictions] = useState<Map<string, AIPrediction>>(new Map());
-  const [judgeProfiles, setJudgeProfiles] = useState<Map<string, JudgeProfile>>(new Map());
   const [loading, setLoading] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Map<string, string>>(new Map());
 
   const API_BASE = 'http://localhost:8000/api';
 
   // Get AI prediction for a market
-  const getPrediction = useCallback(async (marketId: string, caseData?: any) => {
+  const getPrediction = useCallback(async (marketId: string, marketData?: any) => {
     if (!marketId) return null;
 
     setLoading(prev => new Set(prev).add(marketId));
@@ -61,14 +46,14 @@ export function usePredictions() {
     });
 
     try {
-      const response = await fetch(`${API_BASE}/predictions/case-outcome`, {
+      const response = await fetch(`${API_BASE}/predictions/market-outcome`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          case_id: marketId,
-          case_data: caseData || {},
+          market_id: marketId,
+          market_data: marketData || {},
         }),
       });
 
@@ -94,40 +79,6 @@ export function usePredictions() {
     }
   }, [API_BASE]);
 
-  // Get judge profile
-  const getJudgeProfile = useCallback(async (judgeId: string) => {
-    if (!judgeId) return null;
-
-    // Check if we already have this profile
-    if (judgeProfiles.has(judgeId)) {
-      return judgeProfiles.get(judgeId);
-    }
-
-    setLoading(prev => new Set(prev).add(`judge_${judgeId}`));
-
-    try {
-      const response = await fetch(`${API_BASE}/predictions/judge/${judgeId}/profile`);
-
-      if (!response.ok) {
-        throw new Error(`Judge profile API error: ${response.status}`);
-      }
-
-      const profile: JudgeProfile = await response.json();
-      setJudgeProfiles(prev => new Map(prev).set(judgeId, profile));
-
-      return profile;
-    } catch (error) {
-      console.error('Judge profile fetch error:', error);
-      return null;
-    } finally {
-      setLoading(prev => {
-        const newLoading = new Set(prev);
-        newLoading.delete(`judge_${judgeId}`);
-        return newLoading;
-      });
-    }
-  }, [API_BASE, judgeProfiles]);
-
   // Get model status
   const getModelStatus = useCallback(async () => {
     try {
@@ -148,11 +99,11 @@ export function usePredictions() {
 
     // Get AI prediction for this market
     const prediction = await getPrediction(market.id || '', {
-      case_name: market.question || market.title,
-      case_type: 'legal_market',
+      market_title: market.question || market.title,
       market_data: {
         volume: market.volume,
         tags: market.tags,
+        closed: market.closed,
       }
     });
 
@@ -216,7 +167,6 @@ export function usePredictions() {
   return {
     // Core functions
     getPrediction,
-    getJudgeProfile,
     getModelStatus,
     enhanceMarketWithAI,
     enhanceMarketsWithAI,
@@ -227,7 +177,6 @@ export function usePredictions() {
 
     // State
     predictions,
-    judgeProfiles,
     loading,
     errors,
 

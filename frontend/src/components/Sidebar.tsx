@@ -19,12 +19,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       description: 'Portfolio & Overview'
     },
     {
-      name: 'Court Cases',
-      href: '/cases',
-      icon: '⚖️',
-      description: 'Search Legal Cases'
-    },
-    {
       name: 'Markets',
       href: '/markets',
       icon: '📈',
@@ -34,7 +28,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       name: 'AI Predictions',
       href: '/predictions',
       icon: '🤖',
-      description: 'Judge Analysis'
+      description: 'AI Insights'
     },
     {
       name: 'Portfolio',
@@ -85,7 +79,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               <h1 className="text-lg font-bold text-white">
                 Precedence
               </h1>
-              <p className="text-xs text-white/70">Legal Prediction Markets</p>
+              <p className="text-xs text-white/70">Prediction Markets</p>
             </div>
           </div>
 
@@ -138,7 +132,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <div className="bg-white/10 rounded-lg p-3">
             <div className="text-xs text-white/80 mb-1">🚀 Powered by AI</div>
             <div className="text-xs text-white/60">
-              Judge analysis & market intelligence
+              Market intelligence & insights
             </div>
           </div>
         </div>

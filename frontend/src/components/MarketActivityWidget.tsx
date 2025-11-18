@@ -15,7 +15,7 @@ export function MarketActivityWidget() {
     {
       id: '1',
       type: 'trade',
-      description: 'Large YES position taken on Supreme Court case',
+      description: 'Large YES position taken on BTC price market',
       amount: '$12,450',
       time: '2 min ago',
       icon: '💰'
@@ -23,7 +23,7 @@ export function MarketActivityWidget() {
     {
       id: '2',
       type: 'prediction',
-      description: 'AI updated confidence on Regulatory Ruling',
+      description: 'AI updated confidence on election turnout market',
       amount: '87% → 92%',
       time: '5 min ago',
       icon: '🤖'
@@ -31,14 +31,14 @@ export function MarketActivityWidget() {
     {
       id: '3',
       type: 'market_created',
-      description: 'New market created: "EPA Climate Policy"',
+      description: 'New market created: "Global BTC ETF Approval"',
       time: '12 min ago',
       icon: '📈'
     },
     {
       id: '4',
       type: 'trade',
-      description: 'NO position filled on Constitutional case',
+      description: 'NO position filled on championship winner market',
       amount: '$8,320',
       time: '18 min ago',
       icon: '⚖️'
@@ -46,9 +46,9 @@ export function MarketActivityWidget() {
     {
       id: '5',
       type: 'prediction',
-      description: 'Judge analysis completed for SCOTUS case',
+      description: 'AI model refreshed with new order flow signals',
       time: '25 min ago',
-      icon: '👨‍⚖️'
+      icon: '📊'
     }
   ];
 

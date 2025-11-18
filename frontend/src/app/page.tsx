@@ -71,8 +71,8 @@ export default function Home() {
         const response = await fetch('http://localhost:8000/health');
         if (response.ok) {
           setBackendStatus('online');
-          // Fetch legal markets only
-          const marketsResponse = await fetch('http://localhost:8000/api/markets/legal');
+          // Fetch available markets
+          const marketsResponse = await fetch('http://localhost:8000/api/markets');
           if (marketsResponse.ok) {
             const data = await marketsResponse.json();
             // Backend returns markets directly as an array
@@ -107,7 +107,6 @@ export default function Home() {
 
   // Get current view from pathname
   const currentView = pathname === '/' ? 'dashboard' :
-                     pathname === '/cases' ? 'cases' :
                      pathname === '/markets' ? 'markets' :
                      pathname === '/predictions' ? 'predictions' :
                      pathname === '/portfolio' ? 'portfolio' :
@@ -116,19 +115,15 @@ export default function Home() {
   // Filter markets based on selected category
   const filteredMarkets = markets.filter(market => {
     if (selectedCategory === 'all') return true;
-    if (selectedCategory === 'supreme-court') {
-      return market.question?.toLowerCase().includes('supreme court') ||
-             market.question?.toLowerCase().includes('scotus');
+    const question = market.question?.toLowerCase() || '';
+    if (selectedCategory === 'crypto') {
+      return ['crypto', 'bitcoin', 'ethereum', 'solana', 'token'].some(keyword => question.includes(keyword));
     }
-    if (selectedCategory === 'regulatory') {
-      return market.question?.toLowerCase().includes('sec') ||
-             market.question?.toLowerCase().includes('fcc') ||
-             market.question?.toLowerCase().includes('doj') ||
-             market.question?.toLowerCase().includes('regulation');
+    if (selectedCategory === 'politics') {
+      return ['election', 'vote', 'president', 'senate', 'policy'].some(keyword => question.includes(keyword));
     }
-    if (selectedCategory === 'constitutional') {
-      return market.question?.toLowerCase().includes('constitutional') ||
-             market.question?.toLowerCase().includes('amendment');
+    if (selectedCategory === 'sports') {
+      return ['game', 'match', 'league', 'championship', 'team'].some(keyword => question.includes(keyword));
     }
     return true;
   });
@@ -272,17 +267,17 @@ export default function Home() {
                   }}
                 />
 
-                <div className="relative z-10 text-center">
-                  <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-                    Predict Legal
-                    <span className="block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                      Outcomes
-                    </span>
-                  </h1>
-                  <p className="text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto mb-8">
-                    Trade on Supreme Court decisions, regulatory rulings, and high-profile legal cases
-                    with AI-powered market intelligence.
-                  </p>
+              <div className="relative z-10 text-center">
+                <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+                  Predict Market
+                  <span className="block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                    Outcomes
+                  </span>
+                </h1>
+                <p className="text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto mb-8">
+                  Trade on the latest narratives across crypto, politics, and sports with AI-powered
+                  market intelligence.
+                </p>
 
                   {/* Key Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12">
@@ -343,34 +338,34 @@ export default function Home() {
                     All Markets
                   </button>
                   <button
-                    onClick={() => setSelectedCategory('supreme-court')}
+                    onClick={() => setSelectedCategory('crypto')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      selectedCategory === 'supreme-court'
+                      selectedCategory === 'crypto'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
                     }`}
                   >
-                    🏛️ Supreme Court
+                    🪙 Crypto
                   </button>
                   <button
-                    onClick={() => setSelectedCategory('regulatory')}
+                    onClick={() => setSelectedCategory('politics')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      selectedCategory === 'regulatory'
+                      selectedCategory === 'politics'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
                     }`}
                   >
-                    ⚖️ Regulatory
+                    🏛️ Politics
                   </button>
                   <button
-                    onClick={() => setSelectedCategory('constitutional')}
+                    onClick={() => setSelectedCategory('sports')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      selectedCategory === 'constitutional'
+                      selectedCategory === 'sports'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
                     }`}
                   >
-                    📜 Constitutional
+                    🏅 Sports
                   </button>
                 </div>
               </div>
@@ -380,7 +375,7 @@ export default function Home() {
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-lg text-slate-600">Loading legal markets...</p>
+                    <p className="text-lg text-slate-600">Loading markets...</p>
                     <p className="text-sm text-slate-500 mt-2">Fetching data from Polymarket</p>
                   </div>
                 </div>
@@ -546,153 +541,68 @@ export default function Home() {
           </>
         )}
 
-        {currentView === 'cases' && (
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-slate-900 mb-4">Court Cases</h1>
-              <p className="text-slate-600">Search legal cases and create prediction markets</p>
-            </div>
-
-            {/* Search Interface */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
-              <div className="max-w-2xl mx-auto">
-                <h2 className="text-xl font-semibold text-slate-900 mb-4 text-center">
-                  🔍 Search Court Cases
-                </h2>
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    placeholder="Search for legal cases (e.g., 'social media regulation', 'environmental law')..."
-                    className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    Search
-                  </button>
-                </div>
-                <p className="text-sm text-slate-500 mt-3 text-center">
-                  Powered by CourtListener API with semantic search
-                </p>
-              </div>
-            </div>
-
-            {/* Featured Case Categories */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="text-3xl mb-3">🏛️</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Supreme Court</h3>
-                <p className="text-sm text-slate-600">High-profile constitutional cases</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="text-3xl mb-3">⚖️</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Regulatory</h3>
-                <p className="text-sm text-slate-600">SEC, FCC, and agency decisions</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="text-3xl mb-3">📜</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Constitutional</h3>
-                <p className="text-sm text-slate-600">First Amendment and rights cases</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="text-3xl mb-3">🏢</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Corporate</h3>
-                <p className="text-sm text-slate-600">Business law and litigation</p>
-              </div>
-            </div>
-
-            {/* Recent Cases */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-              <h3 className="text-xl font-semibold text-slate-900 mb-6">Recent Supreme Court Cases</h3>
-              <div className="space-y-4">
-                {[
-                  { title: "Social Media Content Moderation Case", court: "Supreme Court", date: "2024", status: "Active" },
-                  { title: "Environmental Regulation Challenge", court: "Supreme Court", date: "2024", status: "Active" },
-                  { title: "Digital Privacy Rights Case", court: "Supreme Court", date: "2024", status: "Pending" },
-                  { title: "Corporate Governance Dispute", court: "Supreme Court", date: "2024", status: "Active" }
-                ].map((case_, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-slate-900">{case_.title}</h4>
-                      <p className="text-sm text-slate-600">{case_.court} • {case_.date}</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        case_.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {case_.status}
-                      </span>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                        Create Market
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </main>
-        )}
-
         {currentView === 'markets' && (
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-slate-900 mb-4">Markets</h1>
-              <p className="text-slate-600">Browse and trade on legal prediction markets</p>
+              <p className="text-slate-600">Browse and trade on top prediction markets</p>
             </div>
 
             {/* Category Filters */}
-            <div className="mb-8">
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedCategory === 'all'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
-                  }`}
-                >
-                  All Markets
-                </button>
-                <button
-                  onClick={() => setSelectedCategory('supreme-court')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedCategory === 'supreme-court'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
-                  }`}
-                >
-                  🏛️ Supreme Court
-                </button>
-                <button
-                  onClick={() => setSelectedCategory('regulatory')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedCategory === 'regulatory'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
-                  }`}
-                >
-                  ⚖️ Regulatory
-                </button>
-                <button
-                  onClick={() => setSelectedCategory('constitutional')}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedCategory === 'constitutional'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
-                  }`}
-                >
-                  📜 Constitutional
-                </button>
-              </div>
-            </div>
-
-            {/* Markets Grid - Same as dashboard */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-lg text-slate-600">Loading legal markets...</p>
-                  <p className="text-sm text-slate-500 mt-2">Fetching data from Polymarket</p>
+              <div className="mb-8">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      selectedCategory === 'all'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
+                    }`}
+                  >
+                    All Markets
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory('crypto')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      selectedCategory === 'crypto'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
+                    }`}
+                  >
+                    🪙 Crypto
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory('politics')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      selectedCategory === 'politics'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
+                    }`}
+                  >
+                    🏛️ Politics
+                  </button>
+                  <button
+                    onClick={() => setSelectedCategory('sports')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      selectedCategory === 'sports'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-300'
+                    }`}
+                  >
+                    🏅 Sports
+                  </button>
                 </div>
               </div>
+
+            {/* Markets Grid - Same as dashboard */}
+              {loading ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-lg text-slate-600">Loading markets...</p>
+                    <p className="text-sm text-slate-500 mt-2">Fetching data from Polymarket</p>
+                  </div>
+                </div>
             ) : filteredMarkets.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredMarkets.map((market, index) => (
@@ -772,7 +682,7 @@ export default function Home() {
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-slate-900 mb-4">AI Predictions</h1>
-              <p className="text-slate-600">Explore AI-powered market predictions and judge analysis</p>
+              <p className="text-slate-600">Explore AI-powered market predictions and insights</p>
             </div>
 
             {/* AI Insights Overview */}
@@ -845,7 +755,7 @@ export default function Home() {
               <div className="text-center py-20">
                 <div className="text-6xl mb-4">🤖</div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">AI Predictions Loading</h3>
-                <p className="text-slate-600">Our AI is analyzing legal markets. Check back soon!</p>
+                <p className="text-slate-600">Our AI is analyzing markets. Check back soon!</p>
               </div>
             )}
           </main>

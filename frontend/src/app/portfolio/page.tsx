@@ -36,7 +36,7 @@ export default function PortfolioPage() {
   const tradingHistory: Trade[] = [
     {
       id: '1',
-      market: 'Will SCOTUS overturn Roe v. Wade?',
+      market: 'Will BTC close above $80k this month?',
       type: 'YES',
       amount: 100,
       price: 0.65,
@@ -45,7 +45,7 @@ export default function PortfolioPage() {
     },
     {
       id: '2',
-      market: 'Will EPA regulate crypto mining?',
+      market: 'Will ETH staking yields drop below 2%?',
       type: 'NO',
       amount: 50,
       price: 0.42,
@@ -55,7 +55,7 @@ export default function PortfolioPage() {
     },
     {
       id: '3',
-      market: 'Will Congress pass climate bill?',
+      market: 'Will Candidate X lead the next national poll?',
       type: 'YES',
       amount: 75,
       price: 0.55,
@@ -69,7 +69,7 @@ export default function PortfolioPage() {
   const openPositions: Position[] = [
     {
       id: '1',
-      market: 'Will SCOTUS overturn Roe v. Wade?',
+      market: 'Will BTC close above $80k this month?',
       type: 'YES',
       amount: 100,
       entryPrice: 0.65,
@@ -78,7 +78,7 @@ export default function PortfolioPage() {
     },
     {
       id: '2',
-      market: 'Will EPA regulate crypto mining?',
+      market: 'Will ETH staking yields drop below 2%?',
       type: 'NO',
       amount: 50,
       entryPrice: 0.42,

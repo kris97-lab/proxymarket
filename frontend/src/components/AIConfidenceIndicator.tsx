@@ -14,7 +14,7 @@ export function AIConfidenceIndicator({
   showDetails = false,
   className = ''
 }: AIConfidenceIndicatorProps) {
-  const { confidence, predicted_outcome, judge_analysis } = prediction;
+  const { confidence, predicted_outcome, model_adjustment } = prediction;
 
   // Determine color based on confidence level
   const getConfidenceColor = (conf: number) => {
@@ -56,25 +56,13 @@ export function AIConfidenceIndicator({
         <span className="text-xs font-medium">AI Confidence = {Math.round(confidence * 100)}%</span>
       </div>
 
-      {/* Judge Analysis Indicator */}
-      {judge_analysis && judge_analysis.judge_bias && (
-        <div className={`
-          inline-flex items-center space-x-1 rounded-full bg-purple-100 border border-purple-200
-          text-purple-700 font-medium ${sizeClasses[size]}
-        `}>
-          <span>⚖️</span>
-          <span className="capitalize">{judge_analysis.judge_bias.replace('_', ' ')}</span>
-        </div>
-      )}
-
       {/* Detailed Tooltip/Info */}
       {showDetails && (
         <div className="text-xs text-gray-500 ml-2">
           {getConfidenceLabel(confidence)}
-          {judge_analysis?.judge_confidence_adjustment !== undefined && (
+          {model_adjustment !== undefined && (
             <span className="ml-1">
-              ({judge_analysis.judge_confidence_adjustment > 0 ? '+' : ''}
-              {Math.round(judge_analysis.judge_confidence_adjustment * 100)}% judge adjustment)
+              ({model_adjustment > 0 ? '+' : ''}{Math.round(model_adjustment * 100)}% model adjustment)
             </span>
           )}
         </div>
@@ -131,24 +119,12 @@ export function AIConfidenceDetailed({
             <div className="font-medium text-gray-900">{prediction.model_version || 'Unknown'}</div>
           </div>
         </div>
-
-        {prediction.judge_analysis && (
+        {prediction.model_adjustment !== undefined && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <span className="text-gray-600">Judge Analysis:</span>
-            <div className="mt-1 space-y-1">
-              {prediction.judge_analysis.judge_bias && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                    Judge Bias: {prediction.judge_analysis.judge_bias.replace('_', ' ')}
-                  </span>
-                </div>
-              )}
-              {prediction.judge_analysis.judge_confidence_adjustment !== undefined && (
-                <div className="text-xs text-gray-600">
-                  Confidence adjusted by judge analysis: {prediction.judge_analysis.judge_confidence_adjustment > 0 ? '+' : ''}
-                  {Math.round(prediction.judge_analysis.judge_confidence_adjustment * 100)}%
-                </div>
-              )}
+            <span className="text-gray-600">Model Adjustment:</span>
+            <div className="mt-1 text-xs text-gray-600">
+              Confidence adjusted by model signals: {prediction.model_adjustment > 0 ? '+' : ''}
+              {Math.round(prediction.model_adjustment * 100)}%
             </div>
           </div>
         )}
