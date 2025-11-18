@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Image from "next/image";
 import { useWallet } from '../hooks/useWallet';
 import { usePredictions, MarketWithAI } from '../hooks/usePredictions';
+import { fetchMarkets } from '../lib/api';
 import { TradingModal } from '../components/TradingModal';
 import { AIConfidenceBadge, AIConfidenceDetailed } from '../components/AIConfidenceIndicator';
 import { Sidebar, MobileMenuButton } from '../components/Sidebar';
@@ -71,25 +72,21 @@ export default function Home() {
         const response = await fetch('http://localhost:8000/health');
         if (response.ok) {
           setBackendStatus('online');
-          // Fetch available markets
-          const marketsResponse = await fetch('http://localhost:8000/api/markets');
-          if (marketsResponse.ok) {
-            const data = await marketsResponse.json();
-            // Backend returns markets directly as an array
-            const rawMarkets = Array.isArray(data) ? data : (data.markets || []);
-            setMarkets(rawMarkets);
+          const data = await fetchMarkets();
+          // Backend returns markets directly as an array
+          const rawMarkets = Array.isArray(data) ? data : (data.markets || []);
+          setMarkets(rawMarkets);
 
-            // Enhance markets with AI predictions
-            if (rawMarkets.length > 0) {
-              console.log('Enhancing markets with AI predictions...');
-              const enhancedMarkets = await enhanceMarketsWithAI(rawMarkets); // Process all markets
-              // Update markets with AI-enhanced versions where available
-              const finalMarkets = rawMarkets.map((market: Market) => {
-                const enhanced = enhancedMarkets.find(em => em.id === market.id);
-                return enhanced || market;
-              });
-              setMarkets(finalMarkets);
-            }
+          // Enhance markets with AI predictions
+          if (rawMarkets.length > 0) {
+            console.log('Enhancing markets with AI predictions...');
+            const enhancedMarkets = await enhanceMarketsWithAI(rawMarkets); // Process all markets
+            // Update markets with AI-enhanced versions where available
+            const finalMarkets = rawMarkets.map((market: Market) => {
+              const enhanced = enhancedMarkets.find(em => em.id === market.id);
+              return enhanced || market;
+            });
+            setMarkets(finalMarkets);
           }
         } else {
           setBackendStatus('offline');

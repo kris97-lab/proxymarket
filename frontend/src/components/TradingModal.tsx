@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTrading } from '../hooks/useTrading';
+import { useTrade } from '../hooks/useTrade';
 import { useWallet } from '../hooks/useWallet';
 
 interface TradingModalProps {
@@ -11,7 +11,7 @@ interface TradingModalProps {
 export const TradingModal = ({ market, isOpen, onClose }: TradingModalProps) => {
   const [side, setSide] = useState<'YES' | 'NO'>('YES');
   const [amount, setAmount] = useState('');
-  const { placeTrade, loading, error } = useTrading();
+  const { placeTrade, loading, error } = useTrade();
   const { walletState } = useWallet();
 
   if (!isOpen) return null;
