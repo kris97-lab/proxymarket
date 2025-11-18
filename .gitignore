@@ -155,3 +155,8 @@ polymarket-transition-plan.md
 
 # Implementation plans (tracked in git)
 # implementation-plan.md
+
+# Backend environment
+/backend/__pycache__/
+/backend/.env
+/backend/.env*
