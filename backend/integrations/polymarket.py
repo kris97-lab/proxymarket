@@ -10,7 +10,6 @@ Provides access to Polymarket's Builder program APIs:
 
 import os
 import logging
-import json
 import subprocess
 from typing import Dict, List, Optional, Any
 
@@ -51,7 +50,7 @@ class PolymarketClient:
             List of market dictionaries
         """
         try:
-            # Use Gamma API for market data (same as get_legal_prediction_markets)
+            # Use Gamma API for market data
             import httpx
 
             gamma_url = "https://gamma-api.polymarket.com/markets"
@@ -165,99 +164,6 @@ class PolymarketClient:
 
         except Exception as e:
             logger.error(f"Failed to search markets: {e}")
-            raise
-
-    def get_legal_prediction_markets(self, limit: int = 20) -> List[Dict]:
-        """Get legal markets with prices from Gamma API (no CLOB calls needed)"""
-        try:
-            import httpx
-
-            gamma_url = "https://gamma-api.polymarket.com/markets"
-
-            # Fetch active, non-closed markets with pagination
-            all_markets = []
-            offset = 0
-
-            while len(all_markets) < 200:
-                params = {
-                    "active": True,
-                    "closed": False,
-                    "archived": False,
-                    "limit": 100,
-                    "offset": offset
-                }
-
-                response = httpx.get(gamma_url, params=params)
-                batch = response.json()
-
-                if not batch:
-                    break
-
-                all_markets.extend(batch)
-                offset += 100
-
-            # Now filter for legal markets using better metadata
-            legal_keywords = [
-                "supreme court", "scotus", "court case",
-                "lawsuit", "litigation", "sec", "fcc", "ftc"
-            ]
-
-            legal_markets = []
-            for market in all_markets:
-                # Gamma API provides better fields
-                question = market.get('question', '').lower()
-                description = market.get('description', '').lower()
-                tags = [tag.lower() for tag in market.get('tags', [])]
-
-                # Check if it's legal-related
-                text = f"{question} {description} {' '.join(tags)}"
-
-                if any(keyword in text for keyword in legal_keywords):
-                    # ADD PRICES FROM GAMMA API (no CLOB call!)
-                    try:
-                        # Debug: check what outcomePrices looks like
-                        outcome_prices_raw = market.get('outcomePrices', '["0.5", "0.5"]')
-                        logger.info(f"Raw outcomePrices for market {market.get('id')}: {outcome_prices_raw} (type: {type(outcome_prices_raw)})")
-
-                        # Gamma API already includes prices!
-                        outcome_prices = outcome_prices_raw
-
-                        # Parse if string (it's probably already a string from JSON response)
-                        if isinstance(outcome_prices, str):
-                            import json
-                            # Remove escaped quotes if present
-                            if outcome_prices.startswith('"') and outcome_prices.endswith('"'):
-                                outcome_prices = outcome_prices[1:-1]  # Remove surrounding quotes
-                            outcome_prices = json.loads(outcome_prices)
-
-                        # Ensure it's a list
-                        if not isinstance(outcome_prices, list):
-                            outcome_prices = [0.5, 0.5]
-
-                        # Add to market
-                        market['current_yes_price'] = float(outcome_prices[0]) if len(outcome_prices) > 0 else 0.5
-                        market['current_no_price'] = float(outcome_prices[1]) if len(outcome_prices) > 1 else 0.5
-
-                        logger.info(f"Parsed prices for market {market.get('id')}: YES={market['current_yes_price']}, NO={market['current_no_price']}")
-
-                    except Exception as e:
-                        logger.warning(f"Failed to parse outcomePrices for market {market.get('id')}: {e}")
-                        logger.warning(f"Raw value was: {outcome_prices_raw}")
-                        # Fallback to 50/50
-                        market['current_yes_price'] = 0.5
-                        market['current_no_price'] = 0.5
-
-                    legal_markets.append(market)
-
-            # Sort by volume
-            legal_markets.sort(key=lambda x: x.get('volume', 0), reverse=True)
-
-            results = legal_markets[:limit]
-            logger.info(f"Found {len(results)} legal markets with prices from {len(all_markets)} total (Gamma API)")
-            return results
-
-        except Exception as e:
-            logger.error(f"Failed to get legal markets from Gamma API: {e}")
             raise
 
     def get_market_price(self, market_id: str) -> Dict:
@@ -520,24 +426,19 @@ if __name__ == "__main__":
 
         # Test 2: Search markets
         print("\n2. Testing market search...")
-        search_results = search_markets("court", limit=3)
-        print(f"✅ Found {len(search_results)} markets matching 'court'")
+        search_results = search_markets("yes", limit=3)
+        print(f"✅ Found {len(search_results)} markets matching 'yes'")
 
-        # Test 3: Legal markets
-        print("\n3. Testing legal market detection...")
-        legal_markets = polymarket.get_legal_prediction_markets(limit=3)
-        print(f"✅ Found {len(legal_markets)} legal prediction markets")
-
-        # Test 4: Market details (if we have markets)
+        # Test 3: Market details (if we have markets)
         if markets:
-            print("\n4. Testing market details...")
+            print("\n3. Testing market details...")
             market_id = markets[0].get('id') or markets[0].get('market_id')
             if market_id:
                 details = get_market_details(market_id)
                 print(f"✅ Retrieved details for market {market_id}")
 
-        # Test 5: Test order creation
-        print("\n5. Testing order creation (test mode)...")
+        # Test 4: Test order creation
+        print("\n4. Testing order creation (test mode)...")
         if markets:
             market_id = markets[0].get('id') or markets[0].get('market_id')
             if market_id:

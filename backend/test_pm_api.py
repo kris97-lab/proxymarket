@@ -36,21 +36,12 @@ def test_basic_functionality():
 
         # Test 2: Search markets
         print("\n2. Testing market search...")
-        search_results = search_markets("court", limit=3)
-        print(f"[OK] Found {len(search_results)} markets matching 'court'")
+        search_results = search_markets("yes", limit=3)
+        print(f"[OK] Found {len(search_results)} markets matching 'yes'")
 
-        # Test 3: Legal markets detection
-        print("\n3. Testing legal market detection...")
-        legal_markets = polymarket.get_legal_prediction_markets(limit=3)
-        print(f"[OK] Found {len(legal_markets)} legal prediction markets")
-
-        if legal_markets:
-            legal_market = legal_markets[0]
-            print(f"   Legal market: {legal_market.get('market', 'Unknown')}")
-
-        # Test 4: Market details (if we have markets)
+        # Test 3: Market details (if we have markets)
         if markets:
-            print("\n4. Testing market details...")
+            print("\n3. Testing market details...")
             # Try to get market ID - could be 'id' or 'market_id'
             market_id = markets[0].get('id') or markets[0].get('market_id') or markets[0].get('condition_id')
             if market_id:
@@ -62,8 +53,8 @@ def test_basic_functionality():
             else:
                 print("[SKIP] No valid market ID found for details test")
 
-        # Test 5: Test order creation
-        print("\n5. Testing order creation (test mode)...")
+        # Test 4: Test order creation
+        print("\n4. Testing order creation (test mode)...")
         if markets:
             market_id = markets[0].get('id') or markets[0].get('market_id') or markets[0].get('condition_id')
             if market_id:
