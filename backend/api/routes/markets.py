@@ -71,27 +71,6 @@ async def search_polymarket_markets(
         logger.error(f"Error searching markets: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to search markets: {str(e)}")
 
-@router.get("/legal")
-async def get_legal_prediction_markets(
-    limit: int = Query(20, description="Maximum number of results", ge=1, le=50)
-):
-    """
-    Get prediction markets related to legal cases and court outcomes.
-
-    Returns markets about Supreme Court cases, legal rulings, and regulatory decisions.
-    """
-    try:
-        logger.info(f"Getting legal prediction markets: limit={limit}")
-
-        markets = polymarket.get_legal_prediction_markets(limit=limit)
-
-        logger.info(f"Found {len(markets)} legal prediction markets")
-        return markets
-
-    except Exception as e:
-        logger.error(f"Error getting legal markets: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get legal markets: {str(e)}")
-
 @router.get("/{market_id}")
 async def get_market_details(market_id: str):
     """
@@ -199,15 +178,10 @@ async def get_market_stats():
         active_markets = len([m for m in markets if m.get('active', False)])
         total_volume = sum(m.get('volume', 0) for m in markets)
 
-        # Get legal markets count
-        legal_markets = polymarket.get_legal_prediction_markets(limit=50)
-        legal_count = len(legal_markets)
-
         stats = {
             "total_markets": total_markets,
             "active_markets": active_markets,
             "total_volume": total_volume,
-            "legal_prediction_markets": legal_count,
             "platform": "Polymarket"
         }
 
