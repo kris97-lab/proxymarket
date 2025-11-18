@@ -160,3 +160,8 @@ polymarket-transition-plan.md
 /backend/__pycache__/
 /backend/.env
 /backend/.env*
+
+# Prevent Caddy autodetect artifacts
+Caddyfile
+Caddyfile.json
+caddy.json
