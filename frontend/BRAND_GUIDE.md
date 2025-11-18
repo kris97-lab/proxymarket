@@ -153,17 +153,11 @@ Body Small: 14px / 0.875rem - Regular (400) - Line height: 1.6
 Caption: 12px / 0.75rem - Medium (500) - Line height: 1.5
 ```
 
-### Web Fonts Implementation
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-```
+### Typography Implementation
 
 ```css
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
