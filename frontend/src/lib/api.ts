@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'http://localhost:8000';
 
 interface TradeParams {
   market_id: string;
@@ -7,6 +7,7 @@ interface TradeParams {
   amount: number;
   price: number;
   wallet_address: string;
+  test_mode?: boolean;
 }
 
 export async function fetchMarkets(limit = 20) {
@@ -18,7 +19,7 @@ export async function fetchMarkets(limit = 20) {
 }
 
 export async function fetchOrderbook(marketId: string) {
-  const response = await fetch(`${API_BASE}/markets/${marketId}/orderbook`);
+  const response = await fetch(`${API_BASE}/orderbook?marketId=${marketId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch orderbook: ${response.status}`);
   }
@@ -43,7 +44,7 @@ export async function placeTradeRequest(params: TradeParams) {
 }
 
 export async function fetchUserBalances(walletAddress: string) {
-  const response = await fetch(`${API_BASE}/users/${walletAddress}/balances`);
+  const response = await fetch(`${API_BASE}/user/balances?walletAddress=${walletAddress}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch balances: ${response.status}`);
   }

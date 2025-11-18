@@ -32,9 +32,7 @@ export function usePredictions() {
   const [loading, setLoading] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Map<string, string>>(new Map());
 
-  const API_BASE = 'http://localhost:8000/api';
-
-  // Get AI prediction for a market
+  // Get AI prediction for a market (locally simulated to avoid removed endpoints)
   const getPrediction = useCallback(async (marketId: string, marketData?: any) => {
     if (!marketId) return null;
 
@@ -46,29 +44,28 @@ export function usePredictions() {
     });
 
     try {
-      const response = await fetch(`${API_BASE}/predictions/market-outcome`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          market_id: marketId,
-          market_data: marketData || {},
-        }),
-      });
+      const volume = Number(marketData?.market_data?.volume || marketData?.volume || 0);
+      const momentum = Number(marketData?.market_data?.probability || marketData?.probability || 0.5);
 
-      if (!response.ok) {
-        throw new Error(`Prediction API error: ${response.status}`);
-      }
+      const confidence = Math.max(0.5, Math.min(0.9, 0.55 + (volume / 1_000_000) + (momentum - 0.5) * 0.3));
+      const predicted_outcome = momentum >= 0.5 ? 'YES' : 'NO';
+      const model_adjustment = (momentum - 0.5) * 0.1;
 
-      const prediction: AIPrediction = await response.json();
+      const prediction: AIPrediction = {
+        predicted_outcome,
+        confidence,
+        model_adjustment,
+        notes: 'Simulated AI signal',
+        model_version: 'offline-simulation-1.0'
+      };
+
       setPredictions(prev => new Map(prev).set(marketId, prediction));
 
       return prediction;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setErrors(prev => new Map(prev).set(marketId, errorMessage));
-      console.error('Prediction fetch error:', error);
+      console.error('Prediction computation error:', error);
       return null;
     } finally {
       setLoading(prev => {
@@ -77,21 +74,16 @@ export function usePredictions() {
         return newLoading;
       });
     }
-  }, [API_BASE]);
+  }, []);
 
-  // Get model status
+  // Get model status (simulated)
   const getModelStatus = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE}/predictions/models/status`);
-      if (!response.ok) {
-        throw new Error(`Model status API error: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Model status fetch error:', error);
-      return null;
-    }
-  }, [API_BASE]);
+    return {
+      status: 'ok',
+      model_version: 'offline-simulation-1.0',
+      last_trained: 'N/A',
+    };
+  }, []);
 
   // Enhanced market data with AI predictions
   const enhanceMarketWithAI = useCallback(async (market: Market): Promise<MarketWithAI> => {

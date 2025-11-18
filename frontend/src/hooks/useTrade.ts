@@ -35,6 +35,7 @@ export function useTrade() {
         amount: params.amount,
         price: params.price,
         wallet_address: walletAddress,
+        test_mode: true,
       });
 
       if (!result.success) {

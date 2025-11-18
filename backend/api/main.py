@@ -69,10 +69,16 @@ app.add_middleware(
 )
 
 # Trusted host middleware (for production)
-if not os.getenv("DEBUG", False):
+if os.getenv("DEBUG", "true").lower() not in ("true", "1", "yes"):
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["precedence.market", "*.precedence.market"]
+        allowed_hosts=[
+            "precedence.market",
+            "*.precedence.market",
+            "localhost",
+            "127.0.0.1",
+            "0.0.0.0"
+        ]
     )
 
 # Request logging middleware
@@ -89,7 +95,7 @@ async def log_requests(request: Request, call_next):
 
     # Log response
     process_time = time.time() - start_time
-    logger.info(".2f")
+    logger.info(f"Completed in {process_time:.2f}s")
 
     return response
 
@@ -103,17 +109,9 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error"}
     )
 
-# Include routers
-app.include_router(
-    markets.router,
-    prefix="/api/markets",
-    tags=["markets"]
-)
-
-app.include_router(
-    trading.router,
-    tags=["trading"]
-)
+# Include routers (no legacy court endpoints remain)
+app.include_router(markets.router, tags=["markets"])
+app.include_router(trading.router, tags=["trading"])
 
 # Health check endpoint
 @app.get("/health")
@@ -135,7 +133,10 @@ async def root():
         "docs": "/docs",
         "health": "/health",
         "endpoints": {
-            "markets": "/api/markets"
+            "markets": "/markets",
+            "orderbook": "/orderbook",
+            "trade": "/trade",
+            "user_balances": "/user/balances"
         }
     }
 
