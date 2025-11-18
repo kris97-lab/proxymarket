@@ -19,8 +19,8 @@ from fastapi.responses import JSONResponse
 import time
 import os
 
-from .routes import cases, markets, predictions, trading
-from ..database import init_db, get_db
+from .routes import markets, trading
+from ..database import init_db
 
 # Configure logging
 logging.basicConfig(
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI application
 app = FastAPI(
     title="Precedence API",
-    description="AI-powered legal prediction markets combining CourtListener data with Polymarket trading",
+    description="AI-powered prediction markets with Polymarket trading",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -105,21 +105,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Include routers
 app.include_router(
-    cases.router,
-    prefix="/api/cases",
-    tags=["cases"]
-)
-
-app.include_router(
     markets.router,
     prefix="/api/markets",
     tags=["markets"]
-)
-
-app.include_router(
-    predictions.router,
-    prefix="/api/predictions",
-    tags=["predictions"]
 )
 
 app.include_router(
@@ -143,13 +131,11 @@ async def root():
     """Root endpoint with API information."""
     return {
         "message": "Welcome to Precedence API",
-        "description": "AI-powered legal prediction markets",
+        "description": "AI-powered prediction markets",
         "docs": "/docs",
         "health": "/health",
         "endpoints": {
-            "cases": "/api/cases",
-            "markets": "/api/markets",
-            "predictions": "/api/predictions"
+            "markets": "/api/markets"
         }
     }
 
