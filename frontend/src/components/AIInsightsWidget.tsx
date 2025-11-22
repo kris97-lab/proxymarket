@@ -17,18 +17,18 @@ export function AIInsightsWidget() {
     {
       id: '1',
       type: 'prediction',
-      title: 'SCOTUS Environmental Case',
-      description: 'AI predicts 78% chance of favorable ruling for environmental plaintiffs',
+      title: 'Crypto Market Momentum',
+      description: 'AI predicts 78% chance SOL outperforms ETH over the next week',
       confidence: 78,
       impact: 'high',
       time: '1 hour ago',
-      icon: '🌱'
+      icon: '🪙'
     },
     {
       id: '2',
       type: 'trend',
-      title: 'Regulatory Momentum',
-      description: 'Increasing SEC scrutiny on crypto markets detected in recent filings',
+      title: 'Exchange Volume Surge',
+      description: 'Spot BTC volume up 18% week-over-week across top exchanges',
       confidence: 85,
       impact: 'medium',
       time: '3 hours ago',
@@ -37,22 +37,22 @@ export function AIInsightsWidget() {
     {
       id: '3',
       type: 'alert',
-      title: 'Judge Pattern Detected',
-      description: 'Judge Roberts shows 92% consistency with conservative rulings in tech cases',
-      confidence: 92,
+      title: 'Liquidity Shift',
+      description: 'Order book imbalance detected on key politics markets — NO side thinning',
+      confidence: 72,
       impact: 'high',
       time: '6 hours ago',
-      icon: '⚖️'
+      icon: '📊'
     },
     {
       id: '4',
       type: 'prediction',
-      title: 'Antitrust Development',
-      description: 'FTC merger challenge likely to succeed based on precedent analysis',
+      title: 'Sports Upset Signal',
+      description: 'AI flags rising YES probability for underdog in weekend marquee matchup',
       confidence: 67,
       impact: 'medium',
       time: '12 hours ago',
-      icon: '🏢'
+      icon: '🏅'
     }
   ];
 

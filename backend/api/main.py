@@ -19,8 +19,8 @@ from fastapi.responses import JSONResponse
 import time
 import os
 
-from .routes import cases, markets, predictions, trading
-from ..database import init_db, get_db
+from .routes import markets, trading
+from ..database import init_db
 
 # Configure logging
 logging.basicConfig(
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI application
 app = FastAPI(
     title="Precedence API",
-    description="AI-powered legal prediction markets combining CourtListener data with Polymarket trading",
+    description="AI-powered prediction markets with Polymarket trading",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -69,10 +69,16 @@ app.add_middleware(
 )
 
 # Trusted host middleware (for production)
-if not os.getenv("DEBUG", False):
+if os.getenv("DEBUG", "true").lower() not in ("true", "1", "yes"):
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["precedence.market", "*.precedence.market"]
+        allowed_hosts=[
+            "precedence.market",
+            "*.precedence.market",
+            "localhost",
+            "127.0.0.1",
+            "0.0.0.0"
+        ]
     )
 
 # Request logging middleware
@@ -89,7 +95,7 @@ async def log_requests(request: Request, call_next):
 
     # Log response
     process_time = time.time() - start_time
-    logger.info(".2f")
+    logger.info(f"Completed in {process_time:.2f}s")
 
     return response
 
@@ -103,29 +109,9 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error"}
     )
 
-# Include routers
-app.include_router(
-    cases.router,
-    prefix="/api/cases",
-    tags=["cases"]
-)
-
-app.include_router(
-    markets.router,
-    prefix="/api/markets",
-    tags=["markets"]
-)
-
-app.include_router(
-    predictions.router,
-    prefix="/api/predictions",
-    tags=["predictions"]
-)
-
-app.include_router(
-    trading.router,
-    tags=["trading"]
-)
+# Include routers (no legacy court endpoints remain)
+app.include_router(markets.router, tags=["markets"])
+app.include_router(trading.router, tags=["trading"])
 
 # Health check endpoint
 @app.get("/health")
@@ -143,13 +129,14 @@ async def root():
     """Root endpoint with API information."""
     return {
         "message": "Welcome to Precedence API",
-        "description": "AI-powered legal prediction markets",
+        "description": "AI-powered prediction markets",
         "docs": "/docs",
         "health": "/health",
         "endpoints": {
-            "cases": "/api/cases",
-            "markets": "/api/markets",
-            "predictions": "/api/predictions"
+            "markets": "/markets",
+            "orderbook": "/orderbook",
+            "trade": "/trade",
+            "user_balances": "/user/balances"
         }
     }
 

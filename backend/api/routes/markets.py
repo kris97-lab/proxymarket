@@ -9,7 +9,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Query, HTTPException
 from pydantic import BaseModel
 
-from ...integrations.polymarket import polymarket, get_markets, search_markets
+from integrations.polymarket import polymarket, get_markets, search_markets
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class MarketSearchRequest(BaseModel):
     query: Optional[str] = None
     limit: int = 20
 
-@router.get("/", response_model=List[Dict[str, Any]])
+@router.get("/markets", response_model=List[Dict[str, Any]])
 async def get_polymarket_markets(
     limit: int = Query(20, description="Maximum number of markets to return", ge=1, le=100)
 ):
@@ -49,7 +49,7 @@ async def get_polymarket_markets(
         logger.error(f"Error getting Polymarket data: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get markets: {str(e)}")
 
-@router.get("/search")
+@router.get("/markets/search")
 async def search_polymarket_markets(
     query: str = Query(..., description="Search query for markets"),
     limit: int = Query(20, description="Maximum number of results", ge=1, le=50)
@@ -71,28 +71,7 @@ async def search_polymarket_markets(
         logger.error(f"Error searching markets: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to search markets: {str(e)}")
 
-@router.get("/legal")
-async def get_legal_prediction_markets(
-    limit: int = Query(20, description="Maximum number of results", ge=1, le=50)
-):
-    """
-    Get prediction markets related to legal cases and court outcomes.
-
-    Returns markets about Supreme Court cases, legal rulings, and regulatory decisions.
-    """
-    try:
-        logger.info(f"Getting legal prediction markets: limit={limit}")
-
-        markets = polymarket.get_legal_prediction_markets(limit=limit)
-
-        logger.info(f"Found {len(markets)} legal prediction markets")
-        return markets
-
-    except Exception as e:
-        logger.error(f"Error getting legal markets: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get legal markets: {str(e)}")
-
-@router.get("/{market_id}")
+@router.get("/markets/{market_id}")
 async def get_market_details(market_id: str):
     """
     Get detailed information about a specific prediction market.
@@ -115,7 +94,7 @@ async def get_market_details(market_id: str):
         logger.error(f"Error getting market details: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get market details: {str(e)}")
 
-@router.get("/{market_id}/price")
+@router.get("/markets/{market_id}/price")
 async def get_market_price(market_id: str):
     """
     Get current price information for a prediction market.
@@ -133,7 +112,7 @@ async def get_market_price(market_id: str):
         logger.error(f"Error getting market price: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get market price: {str(e)}")
 
-@router.get("/{market_id}/orderbook")
+@router.get("/markets/{market_id}/orderbook")
 async def get_market_orderbook(market_id: str):
     """
     Get the order book for a prediction market.
@@ -151,7 +130,7 @@ async def get_market_orderbook(market_id: str):
         logger.error(f"Error getting market orderbook: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get market orderbook: {str(e)}")
 
-@router.post("/{market_id}/order")
+@router.post("/markets/{market_id}/order")
 async def create_market_order(
     market_id: str,
     side: str = Query(..., description="Order side: 'buy' or 'sell'", regex="^(buy|sell)$"),
@@ -182,7 +161,7 @@ async def create_market_order(
         logger.error(f"Error creating order: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to create order: {str(e)}")
 
-@router.get("/stats/summary")
+@router.get("/markets/stats/summary")
 async def get_market_stats():
     """
     Get summary statistics for Polymarket.
@@ -199,15 +178,10 @@ async def get_market_stats():
         active_markets = len([m for m in markets if m.get('active', False)])
         total_volume = sum(m.get('volume', 0) for m in markets)
 
-        # Get legal markets count
-        legal_markets = polymarket.get_legal_prediction_markets(limit=50)
-        legal_count = len(legal_markets)
-
         stats = {
             "total_markets": total_markets,
             "active_markets": active_markets,
             "total_volume": total_volume,
-            "legal_prediction_markets": legal_count,
             "platform": "Polymarket"
         }
 
@@ -217,3 +191,11 @@ async def get_market_stats():
     except Exception as e:
         logger.error(f"Error getting market stats: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get market stats: {str(e)}")
+
+
+@router.get("/orderbook")
+async def get_orderbook_by_query(
+    market_id: str = Query(..., alias="marketId", description="Market ID to fetch orderbook for"),
+):
+    """Convenience endpoint to fetch an orderbook with a query parameter."""
+    return await get_market_orderbook(market_id)

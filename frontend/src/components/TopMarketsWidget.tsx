@@ -42,20 +42,20 @@ export function TopMarketsWidget() {
     },
     {
       id: '4',
-      title: 'Will FTC sue Big Tech merger?',
+      title: 'Will BTC hit a new all-time high this quarter?',
       volume: 1420000,
       change: 15.3,
       probability: 73,
-      category: 'Antitrust',
+      category: 'Crypto',
       trending: false
     },
     {
       id: '5',
-      title: 'Will Supreme Court hear election case?',
+      title: 'Will Team USA win the championship?',
       volume: 1280000,
       change: -5.1,
       probability: 38,
-      category: 'Supreme Court',
+      category: 'Sports',
       trending: false
     }
   ];

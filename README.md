@@ -369,3 +369,11 @@ For inquiries, partnerships, or support:
 **[⬆ Back to Top](#-precedence)**
 
 </div>
+
+## 🔌 API Smoke Tests
+
+```
+curl -s https://your-backend-url/markets
+curl -s "https://your-backend-url/orderbook?marketId=111"
+curl -s "https://your-backend-url/user/balances?walletAddress=0xabc"
+```
